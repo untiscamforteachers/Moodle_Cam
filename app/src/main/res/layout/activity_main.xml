@@ -35,15 +35,17 @@
 
     <ListView
         android:id="@+id/listStudents"
-        android:layout_width="256dp"
-        android:layout_height="323dp"
+        android:layout_width="306dp"
+        android:layout_height="321dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="8dp"
         android:background="@android:color/darker_gray"
-        android:paddingLeft="40dp"
-        android:paddingTop="10dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="2dp"
+        android:paddingRight="5dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.894"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_csv"
         app:layout_optimizationLevel="barrier" />
