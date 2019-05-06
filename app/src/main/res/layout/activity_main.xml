@@ -50,5 +50,14 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_csv"
         app:layout_optimizationLevel="barrier" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/saveZip"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/ic_menu_save"
+        tools:layout_editor_absoluteX="88dp"
+        tools:layout_editor_absoluteY="504dp" />
+
 
 </android.support.constraint.ConstraintLayout>
