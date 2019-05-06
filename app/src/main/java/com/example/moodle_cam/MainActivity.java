@@ -174,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
             if (resultData != null) {
                 Uri path = resultData.getData();
                 stringUri = path.getPath();
-                String test = Environment.getDataDirectory().toString();
                 File src = new File(stringUri);
                 File destination = new File(getFilesDir().getPath());
 
@@ -186,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     System.out.print("error in upload");
                 }
 
-                Toast.makeText(MainActivity.this, "Path: "+test , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Path: "+stringUri , Toast.LENGTH_SHORT).show();
 
             }
 
