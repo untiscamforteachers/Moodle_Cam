@@ -5,10 +5,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +21,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int OPEN_REQUEST_CODE = 40;
     private static final int SAVE_REQUEST_CODE = 43;
 
+
     private List<Student> theStudent = new ArrayList<Student>();
+    private String stringUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                 // öffne File-Browser
                 performFileSearch();
 
+
+
             }
         });
 
@@ -146,26 +159,70 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("text/comma-separated-values");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
-        onActivityResult(READ_REQUEST_CODE,READ_REQUEST_CODE);
 
-        @Override
-        public void onActivityResult(int requestCode, int resultCode,
-        Intent resultData) {
 
-            if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK)
-            {
 
-                if (resultData != null) {
-                        Uri path = resultData.getData();
+    }
 
-                        Toast.makeText(MainActivity.this, path , Toast.LENGTH_SHORT).show();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
 
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK)
+        {
+
+            if (resultData != null) {
+                Uri path = resultData.getData();
+                stringUri = path.getPath();
+                String test = Environment.getDataDirectory().toString();
+                File src = new File(stringUri);
+                File destination = new File(getFilesDir().getPath());
+
+                try {
+                    copyDirectoryOneLocationToAnotherLocation(src,destination);
+                }
+                catch(IOException e) {
+                    e.printStackTrace();
+                    System.out.print("error in upload");
                 }
 
+                Toast.makeText(MainActivity.this, "Path: "+test , Toast.LENGTH_SHORT).show();
 
             }
+
+
+        }
+    }
+    public static void copyDirectoryOneLocationToAnotherLocation(File sourceLocation, File targetLocation)
+            throws IOException {
+
+        if (sourceLocation.isDirectory()) {
+            if (!targetLocation.exists()) {
+                targetLocation.mkdir();
+            }
+
+            String[] children = sourceLocation.list();
+            for (int i = 0; i < sourceLocation.listFiles().length; i++) {
+
+                copyDirectoryOneLocationToAnotherLocation(new File(sourceLocation, children[i]),
+                        new File(targetLocation, children[i]));
+            }
+        } else {
+
+            InputStream in = new FileInputStream(sourceLocation);
+
+            OutputStream out = new FileOutputStream(targetLocation);
+
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
         }
 
     }
-    ﻿﻿﻿
+
 }
