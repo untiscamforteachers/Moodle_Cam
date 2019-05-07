@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -15,12 +16,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        populateStudentList();
+        //populateStudentList();
         populateListView();
         registerClickCallback();
 
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewClicked, int position, long id) {
                 Student ClickedStudent = theStudent.get(position);
-                String message = "Gewählt wurde Schüler: " + ClickedStudent.getLast_name();
+                String message = "Gewählt wurde Schüler: " + ClickedStudent.getName();
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show(); //Toast ist ein Popup von Unten... ;D
                 startCamera();
 
@@ -83,24 +89,56 @@ public class MainActivity extends AppCompatActivity {
                 String CSVmessage = "Wählen Sie den Pfad der CSV";
                 Toast.makeText(MainActivity.this, CSVmessage, Toast.LENGTH_SHORT).show();
 
-                // öffne File-Browser
+                // open File-Browser
                 performFileSearch();
 
             }
         });
 
     }
+    // ++++++++++++++++++++++++++++++++++++++++++[ CSV extractor ]++++++++++++++++++++++++++++
+
+    private void readStudentData() {
+        String line = "";
+        int counter = 0;
+
+        try {
+            InputStream is = openFileInput("Student.csv");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
 
-    // ++++++++++++++++++++++++++++++++++++++++++[ List Populater ]++++++++++++++++++++++++++++
+            while ( (line = reader.readLine()) != null ){
+                if(counter !=0 ) {
+                    //split by "*tab*"
+                    String[] tokens = line.split("\t");
 
-    private void populateStudentList() {    //hier später CSV inplementieren!!!!
-        theStudent.add(new Student("Remig","Okla", R.drawable.pb0));
-        theStudent.add(new Student("Josh","Stock", R.drawable.pb1));
-        theStudent.add(new Student("Domenic","Urank(oder so)", R.drawable.pb2));
-        theStudent.add(new Student("Jonas","Starmack", R.drawable.pb3));
-        theStudent.add(new Student("Such","Doge", R.drawable.pb4));
+                    //read the data
+                    Student sample = new Student();
+                    sample.setName(tokens[0]);
+                    sample.setIconID(tokens[10]);
+                    theStudent.add(sample);
+
+                    Log.d("MyActivity", "Just created" + sample);
+                }
+                counter++; //skip the first Line with headers
+            }
+        }catch (IOException ex){
+            ex.printStackTrace();
+            Log.wtf("MyActivity","Error reading data file on line "+ line , ex);
+        }
+
+
     }
+
+    // ++++++++++++++++++++++++++++++++++++++++++[ List populator ]++++++++++++++++++++++++++++
+
+   // private void populateStudentList() {    //old method to populate dummys!!!!
+    //     theStudent.add(new Student("Remig",R.drawable.pb0));
+    //     theStudent.add(new Student("Josh", R.drawable.pb1));
+    //     theStudent.add(new Student("Domenic", R.drawable.pb2));
+    //      theStudent.add(new Student("Jonas", R.drawable.pb3));
+    //      theStudent.add(new Student("Such", R.drawable.pb4));
+    //   }
 
     private void populateListView() {
         ArrayAdapter<Student> adapter = new MyListAdapter();
@@ -122,17 +160,15 @@ public class MainActivity extends AppCompatActivity {
             //find the Student to work with
             Student currentStudent = theStudent.get(position);
 
-            //fill the Preview
-            ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
-            imageView.setImageResource(currentStudent.getIconID());
+            //fill the Preview  NOTE: Add in camerawhen pictures are possible
+            //ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
+            //imageView.setImageResource(Integer.parseInt(currentStudent.getIconID()));
+
 
             //Firstname
             TextView txtFirstName = (TextView) itemView.findViewById(R.id.txtFirstname);
             txtFirstName.setText(currentStudent.getName());
 
-            //Lastname
-            TextView txtLastName = (TextView) itemView.findViewById(R.id.txtLastname);
-            txtLastName.setText(currentStudent.getLast_name());
 
             return itemView;
         }
@@ -170,9 +206,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String destination = getFilesDir().getPath();
                     InputStream src = getContentResolver().openInputStream(resultData.getData()); // use the uri to create an inputStream
+
                     try {
 
                         convertInputStreamToFile(src, destination);
+
+                        //get the values from the csv for the list Objects after copy
+                        readStudentData();
+                        populateListView();
+
+
                     } catch (IOException e) {
                         e.printStackTrace();
                         System.out.print("error in upload");
@@ -181,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 String destination = getFilesDir().getPath();
                 Toast.makeText(MainActivity.this, "Success!: CSV-File copyed to : " +destination  , Toast.LENGTH_SHORT).show();
+
             }
         }
 
@@ -207,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 outputStream.close();
             }
         }
+
     }
 
 }

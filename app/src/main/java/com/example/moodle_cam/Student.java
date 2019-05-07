@@ -2,13 +2,14 @@ package com.example.moodle_cam;
 
 public class Student {
     private String name;
-    private String last_name;
-    private int iconID;
+    private String iconID;
 
-    public Student(String name, String last_name, int iconID) {
+    public Student(String name, String iconID) {
         this.name = name;
-        this.last_name = last_name;
         this.iconID = iconID;
+    }
+    public Student(){
+        //empty
     }
 
     public String getName() {
@@ -19,19 +20,20 @@ public class Student {
         this.name = name;
     }
 
-    public String getLast_name() {
-        return last_name;
-    }
 
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
-    }
-
-    public int getIconID() {
+    public String getIconID() {
         return iconID;
     }
 
-    public void setIconID(int iconID) {
+    public void setIconID(String iconID) {
         this.iconID = iconID;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", iconID=" + iconID +
+                '}';
     }
 }

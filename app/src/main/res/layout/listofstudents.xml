@@ -12,17 +12,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="8dp"
         android:adjustViewBounds="true"
         android:maxWidth="80dp"
         android:maxHeight="80dp"
-        app:layout_constraintStart_toEndOf="@+id/txtLastname"
         app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="216dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/txtFirstname"
-        android:layout_width="34dp"
+        android:layout_width="193dp"
         android:layout_height="30dp"
         android:layout_marginTop="16dp"
         android:text="TextView"
@@ -30,14 +29,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/txtLastname"
-        android:layout_width="166dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="TextView"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/txtFirstname"
-        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
