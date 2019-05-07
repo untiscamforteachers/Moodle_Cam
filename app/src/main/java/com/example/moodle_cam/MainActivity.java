@@ -3,14 +3,9 @@ package com.example.moodle_cam;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,9 +15,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,9 +26,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int READ_REQUEST_CODE = 42;
-    private static final int CREATE_REQUEST_CODE = 41;
-    private static final int OPEN_REQUEST_CODE = 40;
-    private static final int SAVE_REQUEST_CODE = 43;
+
 
 
     private List<Student> theStudent = new ArrayList<Student>();
@@ -54,11 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void populateListView() {
-        ArrayAdapter<Student> adapter = new MyListAdapter();
-        ListView list = (ListView) findViewById(R.id.listStudents);
-        list.setAdapter(adapter);
-    }
+    // ++++++++++++++++++++++++++++++++++++++++++[ Button-Controller ]++++++++++++++++++++++++++++
     private void registerClickCallback() {
         ListView list = (ListView) findViewById(R.id.listStudents);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -99,11 +86,26 @@ public class MainActivity extends AppCompatActivity {
                 // öffne File-Browser
                 performFileSearch();
 
-
-
             }
         });
 
+    }
+
+
+    // ++++++++++++++++++++++++++++++++++++++++++[ List Populater ]++++++++++++++++++++++++++++
+
+    private void populateStudentList() {    //hier später CSV inplementieren!!!!
+        theStudent.add(new Student("Remig","Okla", R.drawable.pb0));
+        theStudent.add(new Student("Josh","Stock", R.drawable.pb1));
+        theStudent.add(new Student("Domenic","Urank(oder so)", R.drawable.pb2));
+        theStudent.add(new Student("Jonas","Starmack", R.drawable.pb3));
+        theStudent.add(new Student("Such","Doge", R.drawable.pb4));
+    }
+
+    private void populateListView() {
+        ArrayAdapter<Student> adapter = new MyListAdapter();
+        ListView list = (ListView) findViewById(R.id.listStudents);
+        list.setAdapter(adapter);
     }
 
     private class  MyListAdapter extends ArrayAdapter<Student> {
@@ -135,16 +137,9 @@ public class MainActivity extends AppCompatActivity {
             return itemView;
         }
     }
+    // ++++++++++++++++++++++++++++++++++++++++++[ CSV Opener ]++++++++++++++++++++++++++++
 
-    private void populateStudentList() {    //hier später CSV inplementieren!!!!
-        theStudent.add(new Student("Remig","Okla", R.drawable.pb0));
-        theStudent.add(new Student("Josh","Stock", R.drawable.pb1));
-        theStudent.add(new Student("Domenic","Urank(oder so)", R.drawable.pb2));
-        theStudent.add(new Student("Jonas","Starmack", R.drawable.pb3));
-        theStudent.add(new Student("Such","Doge", R.drawable.pb4));
-    }
 
-    //CSV Opener
     public void performFileSearch() {
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
@@ -172,56 +167,46 @@ public class MainActivity extends AppCompatActivity {
         {
 
             if (resultData != null) {
-                Uri path = resultData.getData();
-                stringUri = path.getPath();
-                File src = new File(stringUri);
-                File destination = new File(getFilesDir().getPath());
-
                 try {
-                    copyDirectoryOneLocationToAnotherLocation(src,destination);
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                    System.out.print("error in upload");
-                }
+                    String destination = getFilesDir().getPath();
+                    InputStream src = getContentResolver().openInputStream(resultData.getData()); // use the uri to create an inputStream
+                    try {
 
-                Toast.makeText(MainActivity.this, "Path: "+stringUri , Toast.LENGTH_SHORT).show();
-
+                        convertInputStreamToFile(src, destination);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        System.out.print("error in upload");
+                    }
+                } catch (FileNotFoundException ex) {
+                    }
+                String destination = getFilesDir().getPath();
+                Toast.makeText(MainActivity.this, "Success!: CSV-File copyed to : " +destination  , Toast.LENGTH_SHORT).show();
             }
-
-
         }
+
+
     }
-    public static void copyDirectoryOneLocationToAnotherLocation(File sourceLocation, File targetLocation)
-            throws IOException {
+    public static void convertInputStreamToFile(InputStream is, String destination) throws IOException
+    {
+        OutputStream outputStream = null;
+        try
+        {
+            File file = new File(destination + "/Student.csv");
+            outputStream = new FileOutputStream(file);
 
-        if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists()) {
-                targetLocation.mkdir();
+            int read = 0;
+            byte[] bytes = new byte[1024];
+            while ((read = is.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
             }
-
-            String[] children = sourceLocation.list();
-            for (int i = 0; i < sourceLocation.listFiles().length; i++) {
-
-                copyDirectoryOneLocationToAnotherLocation(new File(sourceLocation, children[i]),
-                        new File(targetLocation, children[i]));
-            }
-        } else {
-
-            InputStream in = new FileInputStream(sourceLocation);
-
-            OutputStream out = new FileOutputStream(targetLocation);
-
-            // Copy the bits from instream to outstream
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
         }
-
+        finally
+        {
+            if(outputStream != null)
+            {
+                outputStream.close();
+            }
+        }
     }
 
 }
