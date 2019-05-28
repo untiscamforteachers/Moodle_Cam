@@ -2,17 +2,17 @@ package com.example.moodle_cam;
 
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.Image;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +23,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,34 +33,36 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
     static final int REQUEST_TAKE_PHOTO = 1;
     private static final int READ_REQUEST_CODE = 2;
-    private static final int TAKE_PICTURE = 3;
-    private Uri imageUri;
 
 
 
-    private List<Student> theStudent = new ArrayList<Student>();
-    private String stringUri;
-    private String currentPhotoPath;
+
+    private  List<Student> theStudent = new ArrayList<Student>();
+    private  String currentPhotoPath;
+    public static MainActivity instance;
+    private boolean hasPicture = false;
+    private String nextStudentInStack;
+    private boolean csvExists = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         setContentView(R.layout.activity_main);
 
         //populateStudentList();
         populateListView();
         registerClickCallback();
-
 
     }
 
@@ -74,10 +75,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View viewClicked, int position, long id) {
                 Student ClickedStudent = theStudent.get(position);
                 String message = "Gewählt wurde Schüler: " + ClickedStudent.getName();
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show(); //Toast ist ein Popup von Unten... ;D
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show(); //Toast ist ein Popup von Unten... ;D
 
-                dispatchTakePictureIntent();
-                galleryAddPic();
+                dispatchTakePictureIntent(ClickedStudent);
+                populateListView(); //update Pictures
 
             }
         }); //ja, das muss so.
@@ -87,9 +88,32 @@ public class MainActivity extends AppCompatActivity {
         zip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String ZipSaveDirectory = "/bin/bilder/00124";
-                String Zipmessage = "Die Bilder wurden in: " + ZipSaveDirectory +".zip gespeichert";
-                Toast.makeText(MainActivity.this, Zipmessage, Toast.LENGTH_LONG).show();
+
+                String Zipmessage = "Die Bilder wurden als .zip gespeichert";
+                Toast.makeText(MainActivity.this, Zipmessage, Toast.LENGTH_SHORT).show();
+                try {
+                    File copyDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                    File newZip = File.createTempFile(
+                            "StudentPictures",  /* prefix */
+                            ".zip",         /* suffix */
+                            storageDir      /* directory */
+                    );
+                    ZipUtils.zipFolder(copyDir,newZip);
+                    Log.w("MyActivity","Zip in /Documents is created - Starting deleting Pictures");
+                    //After all pictures are saved delete all
+                    deleteRecursive(copyDir);
+                    ArrayAdapter<Student> adapter = new MyListAdapter();
+                    ListView list = (ListView) findViewById(R.id.listStudents);
+                    list.setAdapter(adapter);
+                    adapter.clear();
+                    Log.w("MyActivity","Deleting complete");
+
+                }catch (IOException ex){
+                    ex.printStackTrace();
+                    Log.wtf("MyActivity","Error by creating the ZIP ", ex);
+                }
+
             }
         });
 
@@ -104,10 +128,54 @@ public class MainActivity extends AppCompatActivity {
                 // open File-Browser
                 performFileSearch();
 
+
+
             }
         });
 
+        // Whole Class Button
+
+        Button stack = (Button) findViewById(R.id.btn_stack);
+        stack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (csvExists) {
+                    FragmentManager manager = getSupportFragmentManager();
+                    MessageFragment dialog = new MessageFragment();
+                    dialog.show(manager, "StackDialog");
+                    Log.i("TAG", "just showed dialog");
+                }
+
+            }
+
+
+        });
+
+        populateListView(); //update Pictures
     }
+
+    public  void stack(){
+        for (int i = 0; i < theStudent.size(); ) {
+            if(!hasPicture) {
+                    dispatchTakePictureIntent(theStudent.get(i));
+
+                    nextStudentInStack = (i+1)>= theStudent.size()? "Ganze Klasse fertig": theStudent.get(i+1).getName();
+                    hasPicture = true;
+                    i++;
+                    Log.i("TAG", "Just created a Picture in Stack Funktion");
+            } else {
+                try {
+                    Thread.currentThread().sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
     // ++++++++++++++++++++++++++++++++++++++++++[ CSV extractor ]++++++++++++++++++++++++++++
 
     private void readStudentData() {
@@ -128,6 +196,11 @@ public class MainActivity extends AppCompatActivity {
                     Student sample = new Student();
                     sample.setName(tokens[0]);
                     sample.setIconID(tokens[10]);
+                    if(findFoto(tokens[10]) == true) {
+                        sample.setExists(true);
+                    } else {
+                        sample.setExists(false);
+                    }
                     theStudent.add(sample);
 
                     Log.d("MyActivity", "Just created" + sample);
@@ -142,15 +215,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean findFoto(String id) {
+        File image = new File (getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() +"/"+id+".jpg");
+        Boolean ret = false;
+        if (image.exists()) { //test if exists
+            ret = true;
+        }
+        image = null;
+        return ret;
+    }
+
     // ++++++++++++++++++++++++++++++++++++++++++[ List populator ]++++++++++++++++++++++++++++
 
-   // private void populateStudentList() {    //old method to populate dummys!!!!
-    //     theStudent.add(new Student("Remig",R.drawable.pb0));
-    //     theStudent.add(new Student("Josh", R.drawable.pb1));
-    //     theStudent.add(new Student("Domenic", R.drawable.pb2));
-    //      theStudent.add(new Student("Jonas", R.drawable.pb3));
-    //      theStudent.add(new Student("Such", R.drawable.pb4));
-    //   }
 
     private void populateListView() {
         ArrayAdapter<Student> adapter = new MyListAdapter();
@@ -172,9 +248,21 @@ public class MainActivity extends AppCompatActivity {
             //find the Student to work with
             Student currentStudent = theStudent.get(position);
 
+            reduceFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() +"/"+currentStudent.getIconID()+".jpg"));
+
             //fill the Preview  NOTE: Add in camera when pictures are possible
             //ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
             //imageView.setImageResource(Integer.parseInt(currentStudent.getIconID()));
+            String dir =  getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() +"/"+currentStudent.getIconID()+".jpg";
+            if(currentStudent.getExists()== true) {
+
+                ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
+                imageView.setImageURI(Uri.fromFile(new File(dir)));
+
+            }else {
+                ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
+                imageView.setImageResource(R.drawable.def_picture);
+            }
 
 
             //Firstname
@@ -184,7 +272,11 @@ public class MainActivity extends AppCompatActivity {
 
             return itemView;
         }
+
     }
+
+
+
     // ++++++++++++++++++++++++++++++++++++++++++[ CSV Opener ]++++++++++++++++++++++++++++
 
 
@@ -206,16 +298,51 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+// ++++++++++++++++++++++++++++++++++++++++++[ Zip-Packer ]++++++++++++++++++++++++++++
+public static final class ZipUtils {
+
+    public static void zipFolder(final File folder, final File zipFile) throws IOException {
+        zipFolder(folder, new FileOutputStream(zipFile));
+    }
+
+    public static void zipFolder(final File folder, final OutputStream outputStream) throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
+            processFolder(folder, zipOutputStream, folder.getPath().length() + 1);
+        }
+    }
+
+    private static void processFolder(final File folder, final ZipOutputStream zipOutputStream, final int prefixLength)
+            throws IOException {
+        for (final File file : folder.listFiles()) {
+            if (file.isFile()) {
+                final ZipEntry zipEntry = new ZipEntry(file.getPath().substring(prefixLength));
+                zipOutputStream.putNextEntry(zipEntry);
+                try (FileInputStream inputStream = new FileInputStream(file)) {
+                    byte [] buffer = new byte[1024 * 4];
+                    int read = 0;
+                    while ((read = inputStream.read(buffer)) != -1) {
+                        zipOutputStream.write(buffer, 0, read); }
+                }
+                zipOutputStream.closeEntry();
+            } else if (file.isDirectory()) {
+                processFolder(file, zipOutputStream, prefixLength);
+            }
+        }
+    }
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++[ Camera ]++++++++++++++++++++++++++++
 
-    private void dispatchTakePictureIntent() {
+    private void  dispatchTakePictureIntent(Student clickedStudent) {
+        String fileID = clickedStudent.getIconID();
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile(fileID);
             } catch (IOException ex) {
                 Log.wtf("MainActivity","Error occurred while creating the File");
             }
@@ -226,38 +353,43 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                clickedStudent.setExists(true); //mark as Student with Photo
+                String msg = "Foto von Schüler: "+clickedStudent.getName();
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+
 
             }
         }
     }
-    private File createImageFile() throws IOException {
+
+
+
+    private File createImageFile(String fileID) throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String studentID = "87231";
-        String imageFileName = studentID+timeStamp;
+        // Unnessery: String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = fileID;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
+
+
+        File image = new File (storageDir.toString() +"/"+imageFileName+".jpg");
+        if(!image.exists()){
+            try {
+                image.createNewFile();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        String name = image.getName();
 
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
-        Log.w("createImageFile","Path: " +currentPhotoPath);
+        Log.w("createImageFile",name +" Path: " +currentPhotoPath);
 
         return image;
     }
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
-
+    
 
     @Override
     public void onActivityResult(int requestCode, int resultCode,
@@ -279,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         //get the values from the csv for the list Objects after copy
                                          readStudentData();
-                                          populateListView();
+                                         populateListView();
 
 
                              } catch (IOException e)    {
@@ -289,14 +421,15 @@ public class MainActivity extends AppCompatActivity {
                         }
                              String destination = getFilesDir().getPath();
                             Toast.makeText(MainActivity.this, "Success!: CSV-File copyed to : " +destination  , Toast.LENGTH_SHORT).show();
+                        csvExists = true;
                      }
                  }
                 break;//first case
 
             case 1:
                 if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-
-                    galleryAddPic();
+                    hasPicture = false;
+                    toaster();
                 }
         }
 
@@ -323,6 +456,77 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+    void deleteRecursive(File fileOrDirectory) {
+
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
+
+    }
+
+    // ++++++++++++++++++++++++++++++++++++++++++[ Toaster ]++++++++++++++++++++++++++++
+    public void toaster(String name) {
+        Toast.makeText(MainActivity.this, "Foto von Schüler : " +name , Toast.LENGTH_LONG).show();
+    }
+
+    public void toaster() {
+        if (nextStudentInStack == null) {
+            nextStudentInStack = theStudent.get(0).getName();
+        }
+        toaster(nextStudentInStack);
+    }
+
+    public void setNextStudentInStack(String newName) {
+        nextStudentInStack = newName;
+    }
+
+
+
+    public File reduceFileSize(File file){
+
+        try {
+
+            // BitmapFactory options to downsize the image
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            o.inSampleSize = 6;
+            // factor of downsizing the image
+
+            FileInputStream inputStream = new FileInputStream(file);
+            //Bitmap selectedBitmap = null;
+            BitmapFactory.decodeStream(inputStream, null, o);
+            inputStream.close();
+
+            // The new size we want to scale to
+            final int REQUIRED_SIZE=75;
+
+            // Find the correct scale value. It should be the power of 2.
+            int scale = 1;
+            while(o.outWidth / scale / 2 >= REQUIRED_SIZE &&
+                    o.outHeight / scale / 2 >= REQUIRED_SIZE) {
+                scale *= 2;
+            }
+
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            inputStream = new FileInputStream(file);
+
+            Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, o2);
+            inputStream.close();
+
+            // here i override the original image file
+            file.createNewFile();
+            FileOutputStream outputStream = new FileOutputStream(file);
+
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
+
+            return file;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

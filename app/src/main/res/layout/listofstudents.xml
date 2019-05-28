@@ -12,11 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:layout_marginEnd="16dp"
         android:adjustViewBounds="true"
         android:maxWidth="80dp"
         android:maxHeight="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="216dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView

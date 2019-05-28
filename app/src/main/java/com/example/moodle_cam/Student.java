@@ -3,10 +3,12 @@ package com.example.moodle_cam;
 public class Student {
     private String name;
     private String iconID;
+    private Boolean exists;
 
-    public Student(String name, String iconID) {
+    public Student(String name, String iconID, Boolean exists) {
         this.name = name;
         this.iconID = iconID;
+        this.exists = exists;
     }
     public Student(){
         //empty
@@ -27,6 +29,14 @@ public class Student {
 
     public void setIconID(String iconID) {
         this.iconID = iconID;
+    }
+
+    public Boolean getExists() {
+        return exists;
+    }
+
+    public void setExists(Boolean exists) {
+        this.exists = exists;
     }
 
     @Override

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray">
+
+    <ImageView
+        android:id="@+id/Warning"
+        android:layout_width="78dp"
+        android:layout_height="88dp"
+        app:srcCompat="@android:drawable/stat_sys_warning" />
+
+    <TextView
+        android:id="@+id/StackModeInfo"
+        android:layout_width="283dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="88dp"
+        android:text="Beachte, dass in dem Modus du die GANZE Klasse durcharbeiten solltest weil bei Abbruch die Bilder zwar gespeichert werden, bei einen erneuten Modusaufruf jedoch wieder Überschrieben werden, weil es IMMER von Vorne anfängt.\n\nAlle zuvor gemachten Bilder werden Überschrieben.\n\nFotos von abwesenden Schülern müssen gemacht werden(Bsp. von der Wand) und können später manuell in der Liste aktuallisiert werden."
+        android:textSize="18sp" />
+
+</RelativeLayout>

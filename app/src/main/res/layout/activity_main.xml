@@ -4,72 +4,104 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cardview_dark_background"
     tools:context=".MainActivity">
 
-    <Button
+    <TextView
         android:id="@+id/btn_addClass"
-        android:layout_width="257dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="58dp"
+        android:layout_width="136dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="58dp"
+        android:ellipsize="middle"
+        android:fadingEdge="horizontal|vertical"
+        android:shadowColor="@android:color/background_light"
+        android:shadowDx="3"
+        android:shadowDy="3"
+        android:shadowRadius="10"
         android:text="Klasse Wählen"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="20sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintStart_toEndOf="@+id/btn_csv"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btn_csv"
-        android:layout_width="181dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="115dp"
-        android:layout_marginEnd="115dp"
-        android:background="@color/colorPrimary"
+        android:layout_width="0dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="198dp"
+        android:background="#FE9900"
+        android:ellipsize="middle"
+        android:fadingEdge="horizontal|vertical"
         android:foreground="@android:drawable/ic_menu_upload"
         android:foregroundGravity="top|bottom|right"
         android:text="CSV"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_addClass" />
-
-    <ListView
-        android:id="@+id/listStudents"
-        android:layout_width="306dp"
-        android:layout_height="238dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="8dp"
-        android:background="@android:color/darker_gray"
-        android:paddingLeft="5dp"
-        android:paddingTop="2dp"
-        android:paddingRight="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.894"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_csv"
-        app:layout_optimizationLevel="barrier" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/saveZip"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="56dp"
-        android:layout_marginEnd="36dp"
+        android:layout_width="56dp"
+        android:layout_height="59dp"
+
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="52dp"
         android:clickable="true"
+        app:backgroundTint="#FE9900"
+        app:borderWidth="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listStudents"
+        app:maxImageSize="50dp"
+        app:pressedTranslationZ="12dp"
         app:srcCompat="@android:drawable/ic_menu_save" />
 
-    <ImageView
-        android:id="@+id/imageTest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="22dp"
+    <ListView
+        android:id="@+id/listStudents"
+        android:layout_width="0dp"
+        android:layout_height="288dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="130dp"
+        android:background="#E6E4E4"
+        android:paddingLeft="5dp"
+        android:paddingTop="2dp"
+        android:paddingRight="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/saveZip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listStudents"
-        tools:srcCompat="@tools:sample/avatars[0]" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_csv"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_optimizationLevel="barrier" />
+
+    <Button
+        android:id="@+id/btn_stack"
+        android:layout_width="175dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="70dp"
+        android:text="Ganze Klasse durcharbeiten"
+        app:layout_constraintEnd_toStartOf="@+id/saveZip"
+        app:layout_constraintHorizontal_bias="0.23"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listStudents" />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="76dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintStart_toStartOf="@+id/btn_addClass"
+        app:layout_constraintTop_toTopOf="@+id/btn_addClass"
+        app:srcCompat="@mipmap/ic_launcher" />
 
 
 </android.support.constraint.ConstraintLayout>
