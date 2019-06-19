@@ -7,29 +7,11 @@
     android:background="@color/cardview_dark_background"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/btn_addClass"
-        android:layout_width="136dp"
-        android:layout_height="53dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:ellipsize="middle"
-        android:fadingEdge="horizontal|vertical"
-        android:shadowColor="@android:color/background_light"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="10"
-        android:text="Klasse Wählen"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintStart_toEndOf="@+id/btn_csv"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/btn_csv"
-        android:layout_width="0dp"
+        android:layout_width="207dp"
         android:layout_height="53dp"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="198dp"
         android:background="#FE9900"
@@ -40,7 +22,7 @@
         android:text="CSV"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -63,9 +45,9 @@
     <ListView
         android:id="@+id/listStudents"
         android:layout_width="0dp"
-        android:layout_height="288dp"
+        android:layout_height="301dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="130dp"
         android:background="#E6E4E4"
@@ -95,12 +77,14 @@
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="76dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="28dp"
-        app:layout_constraintStart_toStartOf="@+id/btn_addClass"
-        app:layout_constraintTop_toTopOf="@+id/btn_addClass"
+        android:layout_width="95dp"
+        android:layout_height="68dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_csv"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/ic_launcher" />
 
 

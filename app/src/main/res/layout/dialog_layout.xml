@@ -8,17 +8,23 @@
 
     <ImageView
         android:id="@+id/Warning"
-        android:layout_width="78dp"
-        android:layout_height="88dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         app:srcCompat="@android:drawable/stat_sys_warning" />
 
-    <TextView
-        android:id="@+id/StackModeInfo"
-        android:layout_width="283dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="88dp"
-        android:text="Beachte, dass in dem Modus du die GANZE Klasse durcharbeiten solltest weil bei Abbruch die Bilder zwar gespeichert werden, bei einen erneuten Modusaufruf jedoch wieder Überschrieben werden, weil es IMMER von Vorne anfängt.\n\nAlle zuvor gemachten Bilder werden Überschrieben.\n\nFotos von abwesenden Schülern müssen gemacht werden(Bsp. von der Wand) und können später manuell in der Liste aktuallisiert werden."
-        android:textSize="18sp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:id="@+id/StackModeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:text="DER MODUS IST NICHT GANZ AUSGEREIFT, BITTE NUR EINMALIG VERWENDEN! BEI WIEDERHOLTEM AUFRUF KOMMT ES ZU KOMPLIKATIONEN MIT REIHENFOLGE DER SCHÜLER UND SOGAR AUFRUFUNG DER KAMERA. \n\n\n   Beachte, dass in dem Modus du die GANZE Klasse durcharbeiten solltest.\n\nAlle zuvor gemachten Bilder werden Überschrieben.\n\nFotos von abwesenden Schülern müssen gemacht werden(Bsp. von der Wand) und können später manuell in der Liste aktuallisiert werden.\n\nBITTE NACH DEM ERSTEN VERWENDEN NUR NOCH MANUEL DIE LISTE VERVOLLSTÄNDIGEN ODER ABSPEICHERN UND NEU BEGINNEN \n Es kann bei manchen Gerätkonfigurationen vorkommen, dass die Schülernamen-Popups nur ganz kurz oder gar nicht angezeigt werden, in dem Fall muss man leider die Reihenefolge auf bsp. Papier vorab aufschrieben und nebenher abhacken - oder alternativ alle Bilder manuell aufnehemen"
+            android:textSize="14sp" />
+
+    </ScrollView>
 
 </RelativeLayout>

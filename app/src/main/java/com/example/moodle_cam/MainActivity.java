@@ -124,16 +124,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String CSVmessage = "Wählen Sie den Pfad der CSV";
                 Toast.makeText(MainActivity.this, CSVmessage, Toast.LENGTH_SHORT).show();
+                //clear Listview to prewent double isertations
+                ArrayAdapter<Student> adapter = new MyListAdapter();
+                ListView list = (ListView) findViewById(R.id.listStudents);
+                list.setAdapter(adapter);
+                adapter.clear();
 
                 // open File-Browser
                 performFileSearch();
-
-
-
             }
         });
 
+
+
         // Whole Class Button
+        nextStudentInStack = null;
 
         Button stack = (Button) findViewById(R.id.btn_stack);
         stack.setOnClickListener(new View.OnClickListener() {
@@ -166,7 +171,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("TAG", "Just created a Picture in Stack Funktion");
             } else {
                 try {
-                    Thread.currentThread().sleep(50);
+                    Log.i("TAG","Sleeping");
+                    Thread.currentThread().sleep(4000);
+                    Log.i("TAG","woke up");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -220,6 +227,10 @@ public class MainActivity extends AppCompatActivity {
         Boolean ret = false;
         if (image.exists()) { //test if exists
             ret = true;
+            if(image.length() == 0) {
+               image.delete();
+                ret = false;
+            }
         }
         image = null;
         return ret;
@@ -255,10 +266,14 @@ public class MainActivity extends AppCompatActivity {
             //imageView.setImageResource(Integer.parseInt(currentStudent.getIconID()));
             String dir =  getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() +"/"+currentStudent.getIconID()+".jpg";
             if(currentStudent.getExists()== true) {
-
-                ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
-                imageView.setImageURI(Uri.fromFile(new File(dir)));
-
+                File setImage = new File(dir);
+                if(setImage.length()!=0) {
+                    ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
+                    imageView.setImageURI(Uri.fromFile(setImage));
+                }else{setImage.delete();
+                    ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
+                    imageView.setImageResource(R.drawable.def_picture);
+                }
             }else {
                 ImageView imageView = (ImageView) itemView.findViewById(R.id.previewpicture);
                 imageView.setImageResource(R.drawable.def_picture);
@@ -353,10 +368,10 @@ public static final class ZipUtils {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                clickedStudent.setExists(true); //mark as Student with Photo
+
                 String msg = "Foto von Schüler: "+clickedStudent.getName();
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-
+                clickedStudent.setExists(true); //mark as Student with Photo
 
             }
         }
@@ -470,6 +485,11 @@ public static final class ZipUtils {
     // ++++++++++++++++++++++++++++++++++++++++++[ Toaster ]++++++++++++++++++++++++++++
     public void toaster(String name) {
         Toast.makeText(MainActivity.this, "Foto von Schüler : " +name , Toast.LENGTH_LONG).show();
+        try {
+            Thread.currentThread().sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void toaster() {
@@ -521,7 +541,7 @@ public static final class ZipUtils {
             file.createNewFile();
             FileOutputStream outputStream = new FileOutputStream(file);
 
-            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 65 , outputStream);
 
             return file;
         } catch (Exception e) {
