@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasPicture = false;
     private String nextStudentInStack;
     private boolean csvExists = false;
+    private String currentClassName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,11 +126,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String CSVmessage = "Wählen Sie den Pfad der CSV";
                 Toast.makeText(MainActivity.this, CSVmessage, Toast.LENGTH_SHORT).show();
-                //clear Listview to prewent double isertations
-                ArrayAdapter<Student> adapter = new MyListAdapter();
-                ListView list = (ListView) findViewById(R.id.listStudents);
-                list.setAdapter(adapter);
-                adapter.clear();
+
 
                 // open File-Browser
                 performFileSearch();
@@ -212,9 +209,14 @@ public class MainActivity extends AppCompatActivity {
                     theStudent.add(sample);
 
                     Log.d("MyActivity", "Just created" + sample);
+
+                    if(counter == 1){
+                        currentClassName = tokens[5]; //get the classname once for the ZipName.
+                    }
                 }
                 counter++; //skip the first Line with headers
             }
+
         }catch (IOException ex){
             ex.printStackTrace();
             Log.wtf("MyActivity","Error reading data file on line "+ line , ex);
@@ -424,7 +426,11 @@ public static final class ZipUtils {
                              try {
 
                                       convertInputStreamToFile(src, destination);
-
+                                        //clear Listview to prewent double isertations
+                                        ArrayAdapter<Student> adapter = new MyListAdapter();
+                                         ListView list = (ListView) findViewById(R.id.listStudents);
+                                         list.setAdapter(adapter);
+                                         adapter.clear();
                                         //get the values from the csv for the list Objects after copy
                                          readStudentData();
                                          populateListView();
