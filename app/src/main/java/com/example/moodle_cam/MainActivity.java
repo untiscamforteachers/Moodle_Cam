@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show(); //Toast ist ein Popup von Unten... ;D
 
                 dispatchTakePictureIntent(ClickedStudent);
-                populateListView(); //update Pictures
 
             }
         }); //ja, das muss so.
@@ -452,6 +451,7 @@ public static final class ZipUtils {
                 if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
                     hasPicture = false;
                     toaster();
+                    populateListView();
                 }
         }
 
