@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     list.setAdapter(adapter);
                     adapter.clear();
                     Log.w("MyActivity","Deleting complete");
+                    csvExists = false;
 
                 }catch (IOException ex){
                     ex.printStackTrace();
@@ -503,7 +504,7 @@ public static final class ZipUtils {
         nextStudentInStack = newName;
     }
 
-
+    // ++++++++++++++++++++++++++++++++++++++++++[ Compresser ]++++++++++++++++++++++++++++
 
     public File reduceFileSize(File file){
 
